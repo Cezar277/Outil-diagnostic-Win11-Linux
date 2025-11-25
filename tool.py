@@ -160,13 +160,13 @@ def scan_components():
                         cpu_temp = f"{entry.current}°C"
                         break
     
-    cpu_status = "✅ OK" if cpu_percent < 80 and (cpu_temp == "N/A" or float(cpu_temp[:-2]) < 85) else "⚠️ Charge ou température élevée"
+    cpu_status = "✓  OK" if cpu_percent < 80 and (cpu_temp == "N/A" or float(cpu_temp[:-2]) < 85) else "⚠️ Charge ou température élevée"
     results.append(f"CPU: {cpu_status} (Usage: {cpu_percent}%, Temp: {cpu_temp}, Durée de vie estimée: {cpu_life})")
     
     # Test RAM
     print(f"🔍 Test de la RAM...")
     mem = psutil.virtual_memory()
-    mem_status = "✅ OK" if mem.percent < 85 else "⚠️ Usage élevé"
+    mem_status = "✓  OK" if mem.percent < 85 else "⚠️ Usage élevé"
     mem_life = "N/A (Pas de métrique standard; durée de vie typique: >10 ans sans erreurs)"
     results.append(f"RAM: {mem_status} (Usage: {mem.percent}%, Durée de vie estimée: {mem_life})")
     
@@ -187,7 +187,7 @@ def scan_components():
                     if platform.system() == "Windows":
                         device = r'\\.\PhysicalDrive' + device.replace('\\', '').replace(':', '')  # Approximation pour Windows
                     usage = psutil.disk_usage(partition.mountpoint)
-                    disk_status = "✅ OK" if usage.percent < 90 else "⚠️ Espace faible"
+                    disk_status = "✓  OK" if usage.percent < 90 else "⚠️ Espace faible"
                     
                     # Appel smartctl
                     info_output = subprocess.check_output(['smartctl', '-i', device]).decode()
@@ -195,7 +195,7 @@ def scan_components():
                     attr_output = subprocess.check_output(['smartctl', '-A', device]).decode()
                     
                     is_ssd = "Solid State Device" in info_output or "SSD" in info_output
-                    health = "✅ OK" if "PASSED" in health_output else "⚠️ Problème détecté"
+                    health = "✓  OK" if "PASSED" in health_output else "⚠️ Problème détecté"
                     
                     if is_ssd:
                         wear = get_smart_attribute(attr_output, "Media_Wearout_Indicator") or get_smart_attribute(attr_output, "Wear_Leveling_Count") or get_smart_attribute(attr_output, "Percentage_Used")
@@ -213,14 +213,14 @@ def scan_components():
         for partition in psutil.disk_partitions():
             if partition.mountpoint:
                 usage = psutil.disk_usage(partition.mountpoint)
-                disk_status = "✅ OK" if usage.percent < 90 else "⚠️ Espace faible"
+                disk_status = "✓  OK" if usage.percent < 90 else "⚠️ Espace faible"
                 results.append(f"Disque {partition.device}: {disk_status} (Usage: {usage.percent}%) - Pas d'info durée de vie sans smartmontools")
     
     # Test Réseau
     print(f"🔍 Test réseau...")
     try:
         socket.create_connection(("8.8.8.8", 53), timeout=3)
-        net_status = "✅ OK"
+        net_status = "✓  OK"
     except:
         net_status = "❌ Pas de connexion"
     results.append(f"Réseau: {net_status} (Pas de métrique de durée de vie)")
@@ -229,7 +229,7 @@ def scan_components():
     battery = psutil.sensors_battery()
     if battery:
         print(f"🔍 Test batterie...")
-        bat_status = "✅ OK" if battery.percent > 20 else "⚠️ Batterie faible"
+        bat_status = "✓  OK" if battery.percent > 20 else "⚠️ Batterie faible"
         charging = "🔌 En charge" if battery.power_plugged else "🔋 Sur batterie"
         cycles = "N/A"
         life_percent = "N/A"
@@ -255,7 +255,7 @@ def scan_components():
     print(f"{Colors.CYAN}{'─'*60}{Colors.ENDC}")
     
     for result in results:
-        if "✅" in result:
+        if "✓ " in result:
             print(f"{Colors.GREEN}{result}{Colors.ENDC}")
         elif "⚠️" in result:
             print(f"{Colors.WARNING}{result}{Colors.ENDC}")
@@ -304,7 +304,7 @@ def get_windows_license():
                     potential_key = line.strip()
                     if potential_key and potential_key != '':
                         key = potential_key
-                        print(f"\n{Colors.GREEN}✅ Clé trouvée (OEM via WMI):{Colors.ENDC}")
+                        print(f"\n{Colors.GREEN}✓  Clé trouvée (OEM via WMI):{Colors.ENDC}")
                         print(f"{Colors.BOLD}{Colors.CYAN}{key}{Colors.ENDC}")
                         break
         
@@ -317,7 +317,7 @@ def get_windows_license():
             potential_key = result2.stdout.strip()
             if potential_key:
                 key = potential_key
-                print(f"\n{Colors.GREEN}✅ Clé trouvée (OEM via PowerShell):{Colors.ENDC}")
+                print(f"\n{Colors.GREEN}✓  Clé trouvée (OEM via PowerShell):{Colors.ENDC}")
                 print(f"{Colors.BOLD}{Colors.CYAN}{key}{Colors.ENDC}")
         
         if not key:
@@ -327,7 +327,7 @@ def get_windows_license():
             aReg = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
             aKey = winreg.OpenKey(aReg, reg_path)
             key = winreg.QueryValueEx(aKey, "BackupProductKeyDefault")[0]
-            print(f"\n{Colors.GREEN}✅ Clé trouvée (Registry):{Colors.ENDC}")
+            print(f"\n{Colors.GREEN}✓  Clé trouvée (Registry):{Colors.ENDC}")
             print(f"{Colors.BOLD}{Colors.CYAN}{key}{Colors.ENDC}")
         
         if key:
@@ -340,13 +340,13 @@ def get_windows_license():
                     f.write(f"Date: {datetime.now()}\n")
                     f.write(f"OS: {platform.system()} {platform.release()}\n")
                     f.write(f"Clé Windows: {key}\n")
-                print(f"{Colors.GREEN}✅ Clé sauvegardée dans: {filename}{Colors.ENDC}")
+                print(f"{Colors.GREEN}✓  Clé sauvegardée dans: {filename}{Colors.ENDC}")
         else:
             print(f"{Colors.WARNING}⚠️ Aucune clé trouvée.{Colors.ENDC}")
             print(f"Cela peut arriver si Windows a été installé avec une clé retail ou volume.")
             
     except Exception as e:
-        print(f"{Colors.FAIL}❌ Erreur lors de la récupération: {e}{Colors.ENDC}")
+        print(f"{Colors.FAIL}✗  Erreur lors de la récupération: {e}{Colors.ENDC}")
         print(f"Assurez-vous d'exécuter le script en tant qu'administrateur.")
     
     input(f"\n{Colors.CYAN}Appuyez sur Entrée pour continuer...{Colors.ENDC}")
@@ -520,7 +520,7 @@ def main_menu():
         print(f"  {Colors.BOLD}2{Colors.ENDC} - 🔑 Récupérer la clé de licence Windows")
         print(f"  {Colors.BOLD}3{Colors.ENDC} - 📊 Test de performance et rapport de santé")
         print(f"  {Colors.BOLD}4{Colors.ENDC} - 🔄 Rafraîchir l'affichage")
-        print(f"  {Colors.BOLD}0{Colors.ENDC} - ❌ Quitter")
+        print(f"  {Colors.BOLD}0{Colors.ENDC} - ✗ Quitter")
         print(f"{Colors.CYAN}{'─'*60}{Colors.ENDC}")
         
         choice = input(f"\n{Colors.BOLD}Votre choix: {Colors.ENDC}")
