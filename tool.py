@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 System Diagnostics Tool - Compatible Windows/Linux
-Auteur: CEZAR ARDH
+Auteur: CEZAR277
 """
 
 import platform
@@ -17,7 +17,6 @@ from datetime import datetime
 from pathlib import Path
 import winreg
 
-# Couleurs pour le terminal
 class Colors:
     HEADER = '\033[95m'
     BLUE = '\033[94m'
@@ -35,38 +34,31 @@ def clear_screen():
 def get_system_info():
     """Récupère les informations système de base"""
     info = {}
-    
-    # Informations de base
     info['hostname'] = socket.gethostname()
     info['os'] = f"{platform.system()} {platform.release()}"
     info['os_version'] = platform.version()
     info['architecture'] = platform.machine()
     info['processor'] = platform.processor()
     
-    # CPU
     info['cpu_physical_cores'] = psutil.cpu_count(logical=False)
     info['cpu_total_cores'] = psutil.cpu_count(logical=True)
     info['cpu_freq'] = psutil.cpu_freq().current if psutil.cpu_freq() else "N/A"
     
-    # Mémoire
     mem = psutil.virtual_memory()
     info['ram_total'] = f"{mem.total / (1024**3):.2f} GB"
     info['ram_used'] = f"{mem.used / (1024**3):.2f} GB"
     info['ram_percent'] = f"{mem.percent}%"
     
-    # Disque
     disk = psutil.disk_usage('/')
     info['disk_total'] = f"{disk.total / (1024**3):.2f} GB"
     info['disk_used'] = f"{disk.used / (1024**3):.2f} GB"
     info['disk_percent'] = f"{disk.percent}%"
     
-    # Réseau
     try:
         info['ip_address'] = socket.gethostbyname(socket.gethostname())
     except:
         info['ip_address'] = "N/A"
     
-    # Uptime
     boot_time = datetime.fromtimestamp(psutil.boot_time())
     uptime = datetime.now() - boot_time
     info['uptime'] = str(uptime).split('.')[0]
@@ -82,7 +74,6 @@ def display_system_info():
     print(f"{Colors.BOLD}{Colors.BLUE}     Outil diagnostic v1.0{Colors.ENDC}")
     print(f"{Colors.CYAN}{'='*60}{Colors.ENDC}\n")
     
-    # Logo ASCII simplifié
     if platform.system() == "Windows":
         logo = """
         ████████████████
@@ -107,22 +98,21 @@ def display_system_info():
        \___)=(___/
         """
     
-    # Affichage en colonnes
     logo_lines = logo.strip().split('\n')
     
     print(f"{Colors.GREEN}Informations Système:{Colors.ENDC}")
     print(f"{Colors.CYAN}{'─'*60}{Colors.ENDC}")
     
-    print(f"🖥️  {Colors.BOLD}Hostname:{Colors.ENDC} {info['hostname']}")
-    print(f"💻 {Colors.BOLD}OS:{Colors.ENDC} {info['os']}")
-    print(f"🏗️  {Colors.BOLD}Architecture:{Colors.ENDC} {info['architecture']}")
-    print(f"⚙️  {Colors.BOLD}Processeur:{Colors.ENDC} {info['processor'][:50]}...")
-    print(f"🧮 {Colors.BOLD}CPU Cores:{Colors.ENDC} {info['cpu_physical_cores']} physiques / {info['cpu_total_cores']} logiques")
-    print(f"⚡ {Colors.BOLD}CPU Freq:{Colors.ENDC} {info['cpu_freq']} MHz")
-    print(f"💾 {Colors.BOLD}RAM:{Colors.ENDC} {info['ram_used']} / {info['ram_total']} ({info['ram_percent']})")
-    print(f"💿 {Colors.BOLD}Disque:{Colors.ENDC} {info['disk_used']} / {info['disk_total']} ({info['disk_percent']})")
-    print(f"🌐 {Colors.BOLD}IP:{Colors.ENDC} {info['ip_address']}")
-    print(f"⏱️  {Colors.BOLD}Uptime:{Colors.ENDC} {info['uptime']}")
+    print(f"{Colors.BOLD}Hostname:{Colors.ENDC} {info['hostname']}")
+    print(f"{Colors.BOLD}OS:{Colors.ENDC} {info['os']}")
+    print(f"{Colors.BOLD}Architecture:{Colors.ENDC} {info['architecture']}")
+    print(f"{Colors.BOLD}Processeur:{Colors.ENDC} {info['processor'][:50]}...")
+    print(f"{Colors.BOLD}CPU Cores:{Colors.ENDC} {info['cpu_physical_cores']} physiques / {info['cpu_total_cores']} logiques")
+    print(f"{Colors.BOLD}CPU Freq:{Colors.ENDC} {info['cpu_freq']} MHz")
+    print(f"{Colors.BOLD}RAM:{Colors.ENDC} {info['ram_used']} / {info['ram_total']} ({info['ram_percent']})")
+    print(f"{Colors.BOLD}Disque:{Colors.ENDC} {info['disk_used']} / {info['disk_total']} ({info['disk_percent']})")
+    print(f"{Colors.BOLD}IP:{Colors.ENDC} {info['ip_address']}")
+    print(f"{Colors.BOLD}Uptime:{Colors.ENDC} {info['uptime']}")
     
     print(f"\n{Colors.CYAN}{'─'*60}{Colors.ENDC}")
 
@@ -133,7 +123,7 @@ def get_smart_attribute(output, attr_name):
         if attr_name in line:
             parts = line.split()
             if len(parts) > 9:
-                return parts[9]  # Raw value usually in column 10
+                return parts[9]
     return "N/A"
 
 def scan_components():
@@ -145,8 +135,7 @@ def scan_components():
     
     results = []
     
-    # Test CPU
-    print(f"🔍 Test du CPU...")
+    print(f"Test du CPU...")
     cpu_percent = psutil.cpu_percent(interval=2)
     cpu_temp = "N/A"
     cpu_life = "N/A (Durée de vie typique: >10 ans si températures <85°C)"
@@ -160,24 +149,22 @@ def scan_components():
                         cpu_temp = f"{entry.current}°C"
                         break
     
-    cpu_status = "✓  OK" if cpu_percent < 80 and (cpu_temp == "N/A" or float(cpu_temp[:-2]) < 85) else "⚠️ Charge ou température élevée"
+    cpu_status = "OK" if cpu_percent < 80 and (cpu_temp == "N/A" or float(cpu_temp[:-2]) < 85) else "Charge ou température élevée"
     results.append(f"CPU: {cpu_status} (Usage: {cpu_percent}%, Temp: {cpu_temp}, Durée de vie estimée: {cpu_life})")
     
-    # Test RAM
-    print(f"🔍 Test de la RAM...")
+    print(f"Test de la RAM...")
     mem = psutil.virtual_memory()
-    mem_status = "✓  OK" if mem.percent < 85 else "⚠️ Usage élevé"
+    mem_status = "OK" if mem.percent < 85 else "Usage élevé"
     mem_life = "N/A (Pas de métrique standard; durée de vie typique: >10 ans sans erreurs)"
     results.append(f"RAM: {mem_status} (Usage: {mem.percent}%, Durée de vie estimée: {mem_life})")
     
-    # Test Disques avec SMART pour durée de vie
-    print(f"🔍 Test des disques avec analyse SMART...")
+    print(f"Test des disques avec analyse SMART...")
     smart_installed = True
     try:
         subprocess.check_output(['smartctl', '--version'])
     except:
         smart_installed = False
-        results.append("⚠️ smartmontools non installé - Impossible d'estimer durée de vie des disques. Installez via apt/yum ou téléchargez pour Windows.")
+        results.append("smartmontools non installé - Impossible d'estimer durée de vie des disques. Installez via apt/yum ou téléchargez pour Windows.")
     
     if smart_installed:
         for partition in psutil.disk_partitions():
@@ -185,23 +172,22 @@ def scan_components():
                 try:
                     device = partition.device
                     if platform.system() == "Windows":
-                        device = r'\\.\PhysicalDrive' + device.replace('\\', '').replace(':', '')  # Approximation pour Windows
+                        device = r'\\.\PhysicalDrive' + device.replace('\\', '').replace(':', '') 
                     usage = psutil.disk_usage(partition.mountpoint)
-                    disk_status = "✓  OK" if usage.percent < 90 else "⚠️ Espace faible"
+                    disk_status = "OK" if usage.percent < 90 else "Espace faible"
                     
-                    # Appel smartctl
                     info_output = subprocess.check_output(['smartctl', '-i', device]).decode()
                     health_output = subprocess.check_output(['smartctl', '-H', device]).decode()
                     attr_output = subprocess.check_output(['smartctl', '-A', device]).decode()
                     
                     is_ssd = "Solid State Device" in info_output or "SSD" in info_output
-                    health = "✓  OK" if "PASSED" in health_output else "⚠️ Problème détecté"
+                    health = "OK" if "PASSED" in health_output else "Problème détecté"
                     
                     if is_ssd:
                         wear = get_smart_attribute(attr_output, "Media_Wearout_Indicator") or get_smart_attribute(attr_output, "Wear_Leveling_Count") or get_smart_attribute(attr_output, "Percentage_Used")
                         life_percent = f"{100 - int(wear)}%" if wear != "N/A" and wear.isdigit() else "N/A"
                         disk_life = f"{life_percent} restante (basé sur usure)"
-                    else:  # HDD
+                    else: 
                         reallocated = get_smart_attribute(attr_output, "Reallocated_Sector_Ct")
                         power_hours = get_smart_attribute(attr_output, "Power_On_Hours")
                         disk_life = f"Basé sur erreurs: {reallocated} secteurs réalloués, Heures allumé: {power_hours}. Typique >5 ans si erreurs basses."
@@ -213,24 +199,22 @@ def scan_components():
         for partition in psutil.disk_partitions():
             if partition.mountpoint:
                 usage = psutil.disk_usage(partition.mountpoint)
-                disk_status = "✓  OK" if usage.percent < 90 else "⚠️ Espace faible"
+                disk_status = "OK" if usage.percent < 90 else "Espace faible"
                 results.append(f"Disque {partition.device}: {disk_status} (Usage: {usage.percent}%) - Pas d'info durée de vie sans smartmontools")
     
-    # Test Réseau
     print(f"🔍 Test réseau...")
     try:
         socket.create_connection(("8.8.8.8", 53), timeout=3)
-        net_status = "✓  OK"
+        net_status = "OK"
     except:
-        net_status = "❌ Pas de connexion"
+        net_status = "Pas de connexion"
     results.append(f"Réseau: {net_status} (Pas de métrique de durée de vie)")
     
-    # Test Batterie avec cycles si possible
     battery = psutil.sensors_battery()
     if battery:
-        print(f"🔍 Test batterie...")
-        bat_status = "✓  OK" if battery.percent > 20 else "⚠️ Batterie faible"
-        charging = "🔌 En charge" if battery.power_plugged else "🔋 Sur batterie"
+        print(f"Test batterie...")
+        bat_status = "OK" if battery.percent > 20 else "Batterie faible"
+        charging = "En charge" if battery.power_plugged else "Sur batterie"
         cycles = "N/A"
         life_percent = "N/A"
         
@@ -250,30 +234,28 @@ def scan_components():
         
         results.append(f"Batterie: {bat_status} ({battery.percent}% - {charging}), Cycles: {cycles}, Durée de vie: {life_percent}")
     
-    # Affichage des résultats
     print(f"\n{Colors.GREEN}RÉSULTATS DU DIAGNOSTIC:{Colors.ENDC}")
     print(f"{Colors.CYAN}{'─'*60}{Colors.ENDC}")
     
     for result in results:
-        if "✓ " in result:
+        if "OK" in result:
             print(f"{Colors.GREEN}{result}{Colors.ENDC}")
-        elif "⚠️" in result:
+        elif "Danger" in result:
             print(f"{Colors.WARNING}{result}{Colors.ENDC}")
         else:
             print(f"{Colors.FAIL}{result}{Colors.ENDC}")
     
-    # Score global
-    ok_count = sum(1 for r in results if "✅" in r)
+    ok_count = sum(1 for r in results if "OK" in r)
     total_count = len(results)
     score = (ok_count / total_count) * 100 if total_count > 0 else 0
     
     print(f"\n{Colors.CYAN}{'─'*60}{Colors.ENDC}")
     if score >= 80:
-        print(f"{Colors.GREEN}🎉 SCORE GLOBAL: {score:.0f}% - Système en bonne santé!{Colors.ENDC}")
+        print(f"{Colors.GREEN}SCORE GLOBAL: {score:.0f}% - Système en bonne santé!{Colors.ENDC}")
     elif score >= 60:
-        print(f"{Colors.WARNING}⚠️ SCORE GLOBAL: {score:.0f}% - Quelques points d'attention{Colors.ENDC}")
+        print(f"{Colors.WARNING}SCORE GLOBAL: {score:.0f}% - Quelques points d'attention{Colors.ENDC}")
     else:
-        print(f"{Colors.FAIL}❌ SCORE GLOBAL: {score:.0f}% - Maintenance recommandée{Colors.ENDC}")
+        print(f"{Colors.FAIL}SCORE GLOBAL: {score:.0f}% - Maintenance recommandée{Colors.ENDC}")
     
     input(f"\n{Colors.CYAN}Appuyez sur Entrée pour continuer...{Colors.ENDC}")
 
@@ -285,14 +267,13 @@ def get_windows_license():
     print(f"{Colors.BLUE}{'='*60}{Colors.ENDC}\n")
     
     if platform.system() != "Windows":
-        print(f"{Colors.WARNING}⚠️ Cette fonction n'est disponible que sur Windows!{Colors.ENDC}")
+        print(f"{Colors.WARNING} Cette fonction n'est disponible que sur Windows!{Colors.ENDC}")
         input(f"\n{Colors.CYAN}Appuyez sur Entrée pour continuer...{Colors.ENDC}")
         return
     
     key = None
     
     try:
-        # Méthode 1: Via WMI
         print(f"🔍 Recherche de la clé de licence (WMI)...")
         cmd = 'wmic path softwarelicensingservice get OA3xOriginalProductKey'
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -309,30 +290,27 @@ def get_windows_license():
                         break
         
         if not key:
-            # Méthode 2: PowerShell
-            print(f"🔍 Tentative alternative via PowerShell...")
+            print(f"Tentative alternative via PowerShell...")
             ps_cmd = "(Get-WmiObject -query 'select * from SoftwareLicensingService').OA3xOriginalProductKey"
             result2 = subprocess.run(['powershell', '-Command', ps_cmd], capture_output=True, text=True)
             
             potential_key = result2.stdout.strip()
             if potential_key:
                 key = potential_key
-                print(f"\n{Colors.GREEN}✓  Clé trouvée (OEM via PowerShell):{Colors.ENDC}")
+                print(f"\n{Colors.GREEN}Clé trouvée (OEM via PowerShell):{Colors.ENDC}")
                 print(f"{Colors.BOLD}{Colors.CYAN}{key}{Colors.ENDC}")
         
         if not key:
-            # Fallback: Registry BackupProductKeyDefault
-            print(f"🔍 Tentative via Registry...")
+            print(f"Tentative via Registry...")
             reg_path = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform"
             aReg = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
             aKey = winreg.OpenKey(aReg, reg_path)
             key = winreg.QueryValueEx(aKey, "BackupProductKeyDefault")[0]
-            print(f"\n{Colors.GREEN}✓  Clé trouvée (Registry):{Colors.ENDC}")
+            print(f"\n{Colors.GREEN}Clé trouvée (Registry):{Colors.ENDC}")
             print(f"{Colors.BOLD}{Colors.CYAN}{key}{Colors.ENDC}")
         
         if key:
-            # Sauvegarder dans un fichier
-            save_to_file = input(f"\n📁 Voulez-vous sauvegarder la clé dans un fichier? (o/n): ")
+            save_to_file = input(f"\nVoulez-vous sauvegarder la clé dans un fichier? (o/n): ")
             if save_to_file.lower() == 'o':
                 filename = f"windows_key_{socket.gethostname()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
                 with open(filename, 'w') as f:
@@ -340,13 +318,13 @@ def get_windows_license():
                     f.write(f"Date: {datetime.now()}\n")
                     f.write(f"OS: {platform.system()} {platform.release()}\n")
                     f.write(f"Clé Windows: {key}\n")
-                print(f"{Colors.GREEN}✓  Clé sauvegardée dans: {filename}{Colors.ENDC}")
+                print(f"{Colors.GREEN}Clé sauvegardée dans: {filename}{Colors.ENDC}")
         else:
             print(f"{Colors.WARNING}⚠️ Aucune clé trouvée.{Colors.ENDC}")
             print(f"Cela peut arriver si Windows a été installé avec une clé retail ou volume.")
             
     except Exception as e:
-        print(f"{Colors.FAIL}✗  Erreur lors de la récupération: {e}{Colors.ENDC}")
+        print(f"{Colors.FAIL}Erreur lors de la récupération: {e}{Colors.ENDC}")
         print(f"Assurez-vous d'exécuter le script en tant qu'administrateur.")
     
     input(f"\n{Colors.CYAN}Appuyez sur Entrée pour continuer...{Colors.ENDC}")
@@ -360,28 +338,23 @@ def performance_test():
     
     report = {}
     
-    # Test vitesse CPU
-    print(f"⚡ Test de performance CPU...")
+    print(f"Test de performance CPU...")
     start = time.time()
-    # Calcul simple pour tester le CPU
     for i in range(1000000):
         _ = i ** 2
     cpu_time = time.time() - start
     report['cpu_benchmark'] = f"{cpu_time:.3f} secondes"
     
-    # Test vitesse disque
-    print(f"💿 Test de vitesse disque...")
+    print(f"Test de vitesse disque...")
     test_file = "test_speed.tmp"
-    data = b"0" * (10 * 1024 * 1024)  # 10MB
+    data = b"0" * (10 * 1024 * 1024) 
     
-    # Test écriture
     start = time.time()
     with open(test_file, 'wb') as f:
         f.write(data)
     write_time = time.time() - start
     write_speed = 10 / write_time
     
-    # Test lecture
     start = time.time()
     with open(test_file, 'rb') as f:
         _ = f.read()
@@ -393,8 +366,7 @@ def performance_test():
     report['disk_write'] = f"{write_speed:.2f} MB/s"
     report['disk_read'] = f"{read_speed:.2f} MB/s"
     
-    # Test latence réseau
-    print(f"🌐 Test de latence réseau...")
+    print(f"Test de latence réseau...")
     try:
         import subprocess
         if platform.system() == "Windows":
@@ -419,8 +391,7 @@ def performance_test():
     except:
         report['network_latency'] = "N/A"
     
-    # Processus les plus gourmands
-    print(f"📊 Analyse des processus...")
+    print(f"Analyse des processus...")
     processes = []
     for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
         try:
@@ -431,25 +402,23 @@ def performance_test():
     top_cpu = sorted(processes, key=lambda x: x['cpu_percent'], reverse=True)[:5]
     top_mem = sorted(processes, key=lambda x: x['memory_percent'], reverse=True)[:5]
     
-    # Génération du rapport
     print(f"\n{Colors.GREEN}RAPPORT DE PERFORMANCE:{Colors.ENDC}")
     print(f"{Colors.CYAN}{'─'*60}{Colors.ENDC}")
     
-    print(f"\n{Colors.BOLD}📈 Benchmarks:{Colors.ENDC}")
+    print(f"\n{Colors.BOLD}Benchmarks:{Colors.ENDC}")
     print(f"  CPU Benchmark: {report['cpu_benchmark']}")
     print(f"  Vitesse écriture disque: {report['disk_write']}")
     print(f"  Vitesse lecture disque: {report['disk_read']}")
     print(f"  Latence réseau: {report.get('network_latency', 'N/A')}")
     
-    print(f"\n{Colors.BOLD}🔝 Top 5 processus (CPU):{Colors.ENDC}")
+    print(f"\n{Colors.BOLD}Top 5 processus (CPU):{Colors.ENDC}")
     for proc in top_cpu:
         print(f"  {proc['name'][:30]:30} - {proc['cpu_percent']:.1f}%")
     
-    print(f"\n{Colors.BOLD}💾 Top 5 processus (RAM):{Colors.ENDC}")
+    print(f"\n{Colors.BOLD}Top 5 processus (RAM):{Colors.ENDC}")
     for proc in top_mem:
         print(f"  {proc['name'][:30]:30} - {proc['memory_percent']:.1f}%")
     
-    # Score de performance
     score = 0
     if cpu_time < 0.5:
         score += 35
@@ -483,12 +452,10 @@ def performance_test():
     if score >= 80:
         print(f"{Colors.GREEN}🚀 SCORE DE PERFORMANCE: {score}/100 - Excellente!{Colors.ENDC}")
     elif score >= 60:
-        print(f"{Colors.WARNING}⚡ SCORE DE PERFORMANCE: {score}/100 - Bonne{Colors.ENDC}")
+        print(f"{Colors.WARNING}SCORE DE PERFORMANCE: {score}/100 - Bonne{Colors.ENDC}")
     else:
-        print(f"{Colors.FAIL}🐌 SCORE DE PERFORMANCE: {score}/100 - À améliorer{Colors.ENDC}")
-    
-    # Sauvegarder le rapport
-    save = input(f"\n📁 Voulez-vous sauvegarder le rapport complet? (o/n): ")
+        print(f"{Colors.FAIL}SCORE DE PERFORMANCE: {score}/100 - À améliorer{Colors.ENDC}")
+    save = input(f"\nVoulez-vous sauvegarder le rapport complet? (o/n): ")
     if save.lower() == 'o':
         filename = f"performance_report_{socket.gethostname()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         
@@ -505,7 +472,7 @@ def performance_test():
         with open(filename, 'w') as f:
             json.dump(full_report, f, indent=2, default=str)
         
-        print(f"{Colors.GREEN}✅ Rapport sauvegardé dans: {filename}{Colors.ENDC}")
+        print(f"{Colors.GREEN}Rapport sauvegardé dans: {filename}{Colors.ENDC}")
     
     input(f"\n{Colors.CYAN}Appuyez sur Entrée pour continuer...{Colors.ENDC}")
 
@@ -516,11 +483,11 @@ def main_menu():
         
         print(f"\n{Colors.BOLD}{Colors.GREEN}OPTIONS DISPONIBLES:{Colors.ENDC}")
         print(f"{Colors.CYAN}{'─'*60}{Colors.ENDC}")
-        print(f"  {Colors.BOLD}1{Colors.ENDC} - 🔍 Scanner les composants et vérifier leur état")
-        print(f"  {Colors.BOLD}2{Colors.ENDC} - 🔑 Récupérer la clé de licence Windows")
-        print(f"  {Colors.BOLD}3{Colors.ENDC} - 📊 Test de performance et rapport de santé")
-        print(f"  {Colors.BOLD}4{Colors.ENDC} - 🔄 Rafraîchir l'affichage")
-        print(f"  {Colors.BOLD}0{Colors.ENDC} - ✗ Quitter")
+        print(f"  {Colors.BOLD}1{Colors.ENDC} - Scanner les composants et vérifier leur état")
+        print(f"  {Colors.BOLD}2{Colors.ENDC} - Récupérer la clé de licence Windows")
+        print(f"  {Colors.BOLD}3{Colors.ENDC} - Test de performance et rapport de santé")
+        print(f"  {Colors.BOLD}4{Colors.ENDC} - Rafraîchir l'affichage")
+        print(f"  {Colors.BOLD}0{Colors.ENDC} - Quitter")
         print(f"{Colors.CYAN}{'─'*60}{Colors.ENDC}")
         
         choice = input(f"\n{Colors.BOLD}Votre choix: {Colors.ENDC}")
@@ -542,7 +509,6 @@ def main_menu():
 
 if __name__ == "__main__":
     try:
-        # Vérification des dépendances
         required_modules = ['psutil']
         missing_modules = []
         
